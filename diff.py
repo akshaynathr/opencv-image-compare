@@ -5,9 +5,17 @@ import cv2
 from text_recognizer import img_read
 from text_recognizer import clean_latin
 from text_recognizer import unicodetoascii
-file1='img6.png'
+import argparse
 
-file2='img7.png'
+
+arg_parser = argparse.ArgumentParser()
+arg_parser.add_argument("-b","--before",required = True, help="Before image")
+arg_parser.add_argument("-a","--after",required = True, help="After image")
+args= vars(arg_parser.parse_args())
+
+file1= args["before"]
+
+file2=args["after"]
 
 img1 = cv2.imread(file1)
 img2 = cv2.imread(file2)
@@ -56,36 +64,36 @@ for c in cnts:
 	cv2.rectangle(img1, (x, y), (x + w, y + h), (0, 0, 255), 2)
 	#cv2.imshow("AA",img1)
 	f=f+1
-        #print(f)
+		#print(f)
 	#cv2.imwrite('A'+str(f)+'.png',crop_imgA)
 	#cv2.imwrite('B'+str(f)+'.png',crop_imgB)
 	cv2.rectangle(img2, (x, y), (x + w, y + h), (0, 0, 255), 2)
 	#cv2.imshow("BB",img2)
-        t1=img_read.read_image(crop_imgA)
-        t2=img_read.read_image(crop_imgB)
-        t1= t1.strip("'")
-        t2= t2.strip("'")
+	t1=img_read.read_image(crop_imgA)
+	t2=img_read.read_image(crop_imgB)
+	t1= t1.strip("'")
+	t2= t2.strip("'")
 
-        if(t1.strip(' ') != ''):
-            textA.append(unicodetoascii.unicodetoascii(clean_latin.clean_latin1(t1)))
+	if(t1.strip(' ') != ''):
+		textA.append(t1)#unicodetoascii.unicodetoascii(t1))
 
-        if(t2.strip(' ') != ''):
-            textB.append(unicodetoascii.unicodetoascii(clean_latin.clean_latin1(t2)))
-
-
-        if t1.strip(' ')== '' and t2.strip(' ')=='':
-            continue
-        if t1.strip(' ') == '' and t2.strip(' ')!='':
-            #print("Element "+ t2 +" has been moved in position")
-            text_result.append("Element "+ t2 +" has been moved in position")
-            continue
-        if t2.strip(' ') == '' and t1.strip(' ')!='':
-            #print("Element "+ t1 +" has been moved in position")
-            text_result.append("Element "+ t1 +" has been moved in position")
-            continue
+	if(t2.strip(' ') != ''):
+		textB.append(t2)#unicodetoascii.unicodetoascii(t2))
 
 
-        text_result.append("Element "+t2+" moved  to position of "+t1)
+	if t1.strip(' ')== '' and t2.strip(' ')=='':
+		continue
+	if t1.strip(' ') == '' and t2.strip(' ')!='':
+		#print("Element "+ t2 +" has been moved in position")
+		text_result.append("'"+t2 +"' has change in position")
+		continue
+	if t2.strip(' ') == '' and t1.strip(' ')!='':
+		#print("Element "+ t1 +" has been moved in position")
+		text_result.append("'"+t1 +"' has change in position")
+		continue
+
+
+	text_result.append("'"+t2+"' moved  to the  position of '"+t1+"'")
 
 
 
@@ -93,29 +101,29 @@ for c in cnts:
 #print(textB)
 # check the items missing in the screenshots
 if score !=1:
-    print("Change detected\n")
-    print("Predicting the changes (Note : result may not be fully accurate.Please check the image diff to confirm the changes)\n")
-    for j in textA:
-        if j not in textB:
-            text_result.append('Element '+ j +' is removed')
+	print("Change detected\n")
+	print("Predicting the changes (Note :result may not be fully accurate.Please check the image diff to confirm the changes)\n")
+	for j in textA:
+		if j not in textB:
+			text_result.append("'"+ j +"' is removed")
 
-    for k in textB:
-        if k not in textA:
-            text_result.append('Element '+ k + ' is added')
+	for k in textB:
+		if k not in textA:
+			text_result.append("'"+k + "' is added")
 
-    for i in set(text_result):
-        print(i)
+	for i in set(text_result):
+		print(i)
 
 """
-    for i in textA:
-        if i not in textB:
-            print("Element " +i + " renamed/removed")
-        else:
-            print("Element " +i + " position changed")
+	for i in textA:
+		if i not in textB:
+			print("Element " +i + " renamed/removed")
+		else:
+			print("Element " +i + " position changed")
 
-    for j in textB:
-        if j not in textA:
-            print("Element "+j + " is newly added")
+	for j in textB:
+		if j not in textA:
+			print("Element "+j + " is newly added")
 """
 cv2.destroyAllWindows()
 #show the output images
